@@ -17,7 +17,7 @@ def ThreePixelError(lbranch, rbranch, target):
 
     return prodFlatten, loss
 
-def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=201):
+def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=100):
     if dataVersion == 'kitti2012':
         numChannels = 1
     elif dataVersion == 'kitti2015':

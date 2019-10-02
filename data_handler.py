@@ -65,15 +65,15 @@ class DataHandler:
         dist = [0.05, 0.2, 0.5, 0.2, 0.05]
         halfDist = len(dist)//2
         count = 0
-        for i in range(dispRange //2 - halfDist, distRange //2 + halfDist + 1):
+        for i in range(dispRange //2 - halfDist, dispRange //2 + halfDist + 1):
             self.batchLabel[:, i] = dist[count]
-            coutn += 1
+            count += 1
 
         self.valLeft = np.zeros((numValLoc, self.patchSize, self.patchSize, self.numChannels))
         self.valRight = np.zeros((numValLoc, self.patchSize, self.patchSize+self.dispRange-1, self.numChannels))
         self.valLabel = np.zeros((numValLoc, dispRange))
         count = 0
-        for i in range(dispRange //2 - halfDist, distRange //2 + halfDist + 1):
+        for i in range(dispRange //2 - halfDist, dispRange //2 + halfDist + 1):
             self.valLabel[:, i] = dist[count]
             count += 1
 
