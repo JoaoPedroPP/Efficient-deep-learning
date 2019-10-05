@@ -5,6 +5,8 @@ import numpy as np
 from keras import backend as K
 from data_handler import DataHandler
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 flags = tf.app.flags
 
 flags.DEFINE_integer('batchSize', 128, 'Batch Size')

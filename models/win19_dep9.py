@@ -31,6 +31,6 @@ def CreateNetwork(input, inputShape, scope='win19_dep9'):
 	model = BatchNormalization()(model)
 
 	model = Conv2D(numMaps, (kw, kh), padding='valid')(model)
-	model = BatchNormalization()
+	model = BatchNormalization()(model)
 
 	return model

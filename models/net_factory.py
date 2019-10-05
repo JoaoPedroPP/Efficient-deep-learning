@@ -8,9 +8,8 @@ from keras.losses import categorical_crossentropy
 slim = tf.contrib.slim
 
 def ThreePixelError(lbranch, rbranch, targets):
-    #print(lbranch.shape)
-    l = tf.squeeze(lbranch, [1])
-    r = tf.transpose(tf.squeeze(rbranch, [1]), perm=[0,2,1])
+    l = tf.squeeze(lbranch)
+    r = tf.transpose(tf.squeeze(rbranch), perm=[0,2,1])
     prod = tf.matmul(l, r) # Executa o produto escalar das imagens
     prodFlatten = tf.contrib.layers.flatten(prod)
 
