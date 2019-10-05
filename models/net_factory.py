@@ -1,5 +1,5 @@
 import tensorflow as tf
-import win19_dep9 as net9
+import models.win19_dep9 as net19
 from tensorflow.python.ops import control_flow_ops
 
 from keras import backend as K
@@ -7,9 +7,10 @@ from keras.losses import categorical_crossentropy
 
 slim = tf.contrib.slim
 
-def ThreePixelError(lbranch, rbranch, target):
+def ThreePixelError(lbranch, rbranch, targets):
+    #print(lbranch.shape)
     l = tf.squeeze(lbranch, [1])
-    r = tf.transpose(tf.squeeze(rbranch, [1]), pem=[0,2,1])
+    r = tf.transpose(tf.squeeze(rbranch, [1]), perm=[0,2,1])
     prod = tf.matmul(l, r) # Executa o produto escalar das imagens
     prodFlatten = tf.contrib.layers.flatten(prod)
 
@@ -17,7 +18,7 @@ def ThreePixelError(lbranch, rbranch, target):
 
     return prodFlatten, loss
 
-def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=100):
+def Create(limage, rimage, targets, netType, patchSize=19, dispRange=100, dataVersion='kitti2015'):
     if dataVersion == 'kitti2012':
         numChannels = 1
     elif dataVersion == 'kitti2015':
@@ -26,7 +27,7 @@ def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=100):
         sys.exit('dataVersion deve ser \'kitti2012\' ou \'kitti2015\'')
 
     leftInputShape = (patchSize, patchSize, numChannels)
-    rightInputShape = (patchSize, patchSize+dispRange, numChannels)
+    rightInputShape = (patchSize, patchSize+dispRange-1, numChannels)
 
     with tf.name_scope('siamese_' + netType):
         if netType == 'win37_dep9':
@@ -44,8 +45,8 @@ def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=100):
         else:
             sys.exit('Modelo invalido')
 
-        prodFaltten, loss = threePixelError(lbranch, rbranch, targets)
-        lrate = tf.placeholder(tf.float32, [], name='lrate')
+        prodFlatten, loss = ThreePixelError(lbranch, rbranch, targets)
+        lrate = tf.compat.v1.placeholder(tf.float32, [], name='lrate')
         with tf.name_scope('optimizer'):
             globalStep = tf.get_variable('globalStep', [], initializer=tf.constant_initializer(0.0), trainable=False)
             optimizer=tf.train.AdagradOptimizer(lrate)
@@ -56,7 +57,7 @@ def Create(limage, rimage, netType, dataVersion, patchSize=19, dispRange=100):
                 update = tf.group(*updateOps)
                 loss = control_flow_ops.with_dependencies([update], loss)
 
-        net = {'lbranch': lbranch, 'rbranch': rbranch, 'loss': loss, 'produtoEscalar': prodFlatten, 'trainStep': trainStep, 'globalStep': globalStep, 'lrate': lrate}
+        net = {'lbranch': lbranch, 'rbranch': rbranch, 'loss': loss, 'innerProduct': prodFlatten, 'trainStep': trainStep, 'globalStep': globalStep, 'lrate': lrate}
         return net
 
 def MapInnerProduct(lmap, rmap):

@@ -15,8 +15,8 @@ class DataHandler:
         self.batchSize = batchSize
         self.patchSize = patchSize
         self.dispRange = dispRange
-        self.halfPatch = patchSize
-        self.halfRange = dispRange
+        self.halfPatch = patchSize // 2
+        self.halfRange = dispRange // 2
 
         self.trPtr = 0
         self.currEpoch = 0
@@ -78,9 +78,9 @@ class DataHandler:
             count += 1
 
         for i in range(numValLoc):
-            imgId, locType, centerX, centerY, rigthCenterX = self.valLoc[self.valPerm[i], 0], self.valLoc[self.valPerm[i], 1], self.valLoc[self.valPerm[i], 2], self.valLoc[self.valPerm[i], 3], self.valLoc[self.valPerm[i], 4]
+            imgId, locType, centerX, centerY, rightCenterX = self.valLoc[self.valPerm[i], 0], self.valLoc[self.valPerm[i], 1], self.valLoc[self.valPerm[i], 2], self.valLoc[self.valPerm[i], 3], self.valLoc[self.valPerm[i], 4]
             rightCenterY = centerY
-
+#            print('%d e %d'%(centerY-self.halfPatch, centerY+self.halfPatch+1))
             self.valLeft[i] = self.lData[imgId][(centerY-self.halfPatch):(centerY+self.halfPatch+1), (centerX-self.halfPatch):(centerX+self.halfPatch+1), :]
             if locType == 1:
                 self.valRight[i] = self.rData[imgId][rightCenterY-self.halfPatch : rightCenterY+self.halfPatch+1, rightCenterX-self.halfPatch-self.halfRange : rightCenterX+self.halfPatch+self.halfRange+1, :]
@@ -99,12 +99,12 @@ class DataHandler:
                 print('....epoch id: '+self.currEpoch+' done....\n')
             i -= 1
 
-            imgId, locType, centerX, centerY, rigthCenterX = self.trLoc[self.trPerm[i], 0], self.trLoc[self.trPerm[i], 1], self.trLoc[self.trPerm[i], 2], self.trLoc[self.trPerm[i], 3], self.trLoc[self.trPerm[i], 4]
-            rigthCenterY = centerY
+            imgId, locType, centerX, centerY, rightCenterX = self.trLoc[self.trPerm[i], 0], self.trLoc[self.trPerm[i], 1], self.trLoc[self.trPerm[i], 2], self.trLoc[self.trPerm[i], 3], self.trLoc[self.trPerm[i], 4]
+            rightCenterY = centerY
 
-            if locTyper == 1:
+            if locType == 1:
                 self.batchLeft[idx] = self.lData[imgId][(centerY-self.halfPatch):(centerY+self.halfPatch+1), (centerX-self.halfPatch):(centerX+self.halfPatch+1), :]
-                self.batchRight[idx] = self.rData[imgId][rigthCenterY-self.halfPatch : rightCenterY+self.halfPatch+1, rightCenterX-self.halfPatch-self.halfRange : rightCenterX+self.halfPatch+self.halfRange+1, :]
+                self.batchRight[idx] = self.rData[imgId][rightCenterY-self.halfPatch : rightCenterY+self.halfPatch+1, rightCenterX-self.halfPatch-self.halfRange : rightCenterX+self.halfPatch+self.halfRange+1, :]
             elif locType == 2:
                 self.batchLeft[idx] = np.transpose(self.lData[imgId][(centerY-self.halfPatch):(centerY+self.halfPatch+1), (centerX-self.halfPatch):(centerX+self.halfPatch+1), :], (1, 0, 2))
                 self.batchRight[idx] = np.transpose(self.rData[imgId][rigthCenterY-self.halfPatch : rightCenterY+self.halfPatch+1, rightCenterX-self.halfPatch-self.halfRange : rightCenterX+self.halfPatch+self.halfRange+1, :], (1, 0, 2))
@@ -116,7 +116,7 @@ class DataHandler:
         return self.valLeft, self.valRight, self.valLabel
 
 if __name__ == '__main__':
-    dh = DataHandler(dataVersion='kitti2015', dataRoot=os.path.expanduser('~/JP/training'), utilRoot=os.path.expanduser('~/JP/cvpr16_stereo_public/preprocess/debug_15'), numTrImg=160, numValImg=40, numValLoc=100, batchSize=128, patchSize=18, dispRange=100)
+    dh = DataHandler(dataVersion='kitti2015', dataRoot=os.path.expanduser('~/JP/training'), utilRoot=os.path.expanduser('~/JP/cvpr16_stereo_public/preprocess/debug_15'), numTrImg=160, numValImg=40, numValLoc=100, batchSize=128, patchSize=37, dispRange=201) #patchSize=18 dispRage=100 numValImg=40
     bLeft, bRight, bLabels = dh.NextBatch()
     print(bLeft.shape)
     print(bLabels[:5])
