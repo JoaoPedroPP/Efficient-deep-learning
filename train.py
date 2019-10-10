@@ -6,6 +6,7 @@ from keras import backend as K
 from data_handler import DataHandler
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_KERAS'] = '1'
 
 flags = tf.app.flags
 

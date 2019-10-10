@@ -4,20 +4,23 @@ from tensorflow.python.ops import control_flow_ops
 
 from keras import backend as K
 from keras.losses import categorical_crossentropy
-
+#import keras
 slim = tf.contrib.slim
 
 def ThreePixelError(lbranch, rbranch, targets):
+    print(rbranch.shape)
     l = tf.squeeze(lbranch)
     r = tf.transpose(tf.squeeze(rbranch), perm=[0,2,1])
     prod = tf.matmul(l, r) # Executa o produto escalar das imagens
+    print(prod)
     prodFlatten = tf.contrib.layers.flatten(prod)
+    #prodFlatten = tf.keras.layers.Flatten(prod)
 
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=targets, logits=prodFlatten), name='loss')
 
     return prodFlatten, loss
 
-def Create(limage, rimage, targets, netType, patchSize=19, dispRange=100, dataVersion='kitti2015'):
+def Create(limage, rimage, targets, netType, patchSize=19, dispRange=201, dataVersion='kitti2015'):
     if dataVersion == 'kitti2012':
         numChannels = 1
     elif dataVersion == 'kitti2015':
@@ -43,7 +46,7 @@ def Create(limage, rimage, targets, netType, patchSize=19, dispRange=100, dataVe
             rbranch = net9.CreateNetwork(rimage, rightInputShape)
         else:
             sys.exit('Modelo invalido')
-
+#        print(targets.shape)
         prodFlatten, loss = ThreePixelError(lbranch, rbranch, targets)
         lrate = tf.compat.v1.placeholder(tf.float32, [], name='lrate')
         with tf.name_scope('optimizer'):
